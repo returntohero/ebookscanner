@@ -109,9 +109,17 @@ class ChangeHandler(FileSystemEventHandler):
         self.timer = Timer(self.debounce_seconds, self.scanner_func)
         self.timer.start()
 
+# In monitor_and_scan.py, at the very bottom
+
 if __name__ == "__main__":
     scan_path = '/ebooks'
     output_path = '/output/ebook_info.txt'
+    
+    # --- [NEW] STARTUP DELAY ---
+    # Add a delay to give network volumes time to mount properly.
+    STARTUP_DELAY_SECONDS = 10
+    print(f"--- Service starting, waiting {STARTUP_DELAY_SECONDS} seconds for volumes to mount... ---")
+    time.sleep(STARTUP_DELAY_SECONDS)
     
     print("--- Ebook Monitor Service ---")
     print(f"Monitoring folder: {scan_path}")
