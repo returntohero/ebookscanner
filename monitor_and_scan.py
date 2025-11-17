@@ -129,38 +129,16 @@ class ChangeHandler(FileSystemEventHandler):
         self.timer.start()
 
 
-# --- [CORRECTED] MAIN EXECUTION WITH FULL DEBUG DUMP ---
+# In monitor_and_scan.py, at the very bottom (Final Clean Version)
+
 if __name__ == "__main__":
     scan_path = '/ebooks'
     output_path = '/output/ebook_info.txt'
-    STARTUP_DELAY_SECONDS = 10
     
-    # Force flushing of all print statements
-    sys.stdout.flush()
-
-    print("--- STARTING FULL DIAGNOSTIC DUMP ---")
-    print(f"--- Waiting {STARTUP_DELAY_SECONDS} seconds for volumes to mount before dumping info... ---")
-    time.sleep(STARTUP_DELAY_SECONDS)
-
-    # 1. Dump User and Environment Info
-    print("\n[DEBUG] Running as user:")
-    subprocess.run(["id"])
+    # Perform an initial scan on startup.
+    # A small delay can still be helpful for network mounts.
+    time.sleep(5)
     
-    # 2. Dump Filesystem Info
-    print(f"\n[DEBUG] Checking for presence of scan path: {scan_path}")
-    if os.path.exists(scan_path):
-        print(f"[SUCCESS] Scan path {scan_path} exists.")
-        print(f"\n[DEBUG] Recursive file listing of {scan_path}:")
-        subprocess.run(["ls", "-lR", scan_path])
-    else:
-        print(f"[FAILURE] Scan path {scan_path} DOES NOT EXIST.")
-
-    print("\n--- DIAGNOSTIC DUMP COMPLETE ---")
-    
-    # Resume normal operation
-    print("\n--- Ebook Monitor Service ---")
-    
-    # Perform an initial scan on startup
     scan_ebook_folder(scan_path, output_path)
 
     # Set up the watchdog observer
@@ -169,7 +147,7 @@ if __name__ == "__main__":
     observer.schedule(event_handler, scan_path, recursive=True)
     observer.start()
     
-    print("--- Service is now running and watching for changes... ---")
+    print(f"--- Service is now running and watching for changes in {scan_path} ---")
 
     try:
         while True:
