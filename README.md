@@ -36,7 +36,7 @@ services:
     # Pulls the pre-built image from Docker Hub.
     # Replace 'your-username' with the actual Docker Hub username.
     # It is recommended to use a specific version tag for stability.
-    image: your-username/ebook-scanner:v1.0.0 # <-- CHANGE TO THE LATEST VERSION TAG
+    image: returntohero/ebook-scanner:v1.0.0 # <-- CHANGE TO THE LATEST VERSION TAG
     
     container_name: ebook-scanner
     restart: always
