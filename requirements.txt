@@ -1,3 +1,5 @@
+# requirements.txt
 ebooklib
 mobilib
 pypdf
+watchdog
