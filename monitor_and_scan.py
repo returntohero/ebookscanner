@@ -1,19 +1,18 @@
-# monitor_and_scan.py
+# monitor_and_scan.py (Corrected Final Debug Version)
 import os
 import sys
 import time
-from threading import Timer
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+import subprocess
+import threading
 
-# --- All the original scanning functions from scan_ebooks.py ---
+# --- All the original scanning functions ---
 from ebooklib import epub
 import mobi
 from pypdf import PdfReader
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
-# (You can copy and paste all your process_epub, process_mobi, process_pdf,
-# and scan_ebook_folder functions directly here without any changes)
-
+# (All the scanning functions like process_epub, scan_ebook_folder, etc., remain the same)
 def process_epub(file_path):
     """Extracts title and ISBN from an EPUB file."""
     book = epub.read_epub(file_path)
@@ -51,7 +50,6 @@ def process_pdf(file_path):
 def scan_ebook_folder(folder_path, output_file):
     """
     Scans a folder and its subfolders for various ebook files and extracts metadata.
-    This function remains the same, performing a full scan.
     """
     print("--- Starting full library scan... ---")
     HANDLERS = {
@@ -86,8 +84,6 @@ def scan_ebook_folder(folder_path, output_file):
     except Exception as e:
         print(f"FATAL: Could not write to output file {output_file}. Error: {e}")
 
-# --- New Watchdog Monitoring Logic ---
-
 class ChangeHandler(FileSystemEventHandler):
     def __init__(self, scanner_func, debounce_seconds=30):
         self.scanner_func = scanner_func
@@ -95,36 +91,46 @@ class ChangeHandler(FileSystemEventHandler):
         self.timer = None
 
     def on_any_event(self, event):
-        # This function is called on any file change (create, delete, move)
         if event.is_directory:
             return
-
-        # Debouncing: If another event comes in, cancel the previous timer
         if self.timer:
             self.timer.cancel()
-            
         print(f"Change detected: {event.src_path}. Triggering scan in {self.debounce_seconds} seconds.")
-        
-        # Start a new timer. The scan will only run if the timer completes.
-        self.timer = Timer(self.debounce_seconds, self.scanner_func)
+        self.timer = threading.Timer(self.debounce_seconds, self.scanner_func)
         self.timer.start()
 
-# In monitor_and_scan.py, at the very bottom
 
+# --- [CORRECTED] MAIN EXECUTION WITH FULL DEBUG DUMP ---
 if __name__ == "__main__":
     scan_path = '/ebooks'
     output_path = '/output/ebook_info.txt'
-    
-    # --- [NEW] STARTUP DELAY ---
-    # Add a delay to give network volumes time to mount properly.
     STARTUP_DELAY_SECONDS = 10
-    print(f"--- Service starting, waiting {STARTUP_DELAY_SECONDS} seconds for volumes to mount... ---")
-    time.sleep(STARTUP_DELAY_SECONDS)
     
-    print("--- Ebook Monitor Service ---")
-    print(f"Monitoring folder: {scan_path}")
-    print(f"Outputting to: {output_path}")
+    # Force flushing of all print statements
+    sys.stdout.flush()
 
+    print("--- STARTING FULL DIAGNOSTIC DUMP ---")
+    print(f"--- Waiting {STARTUP_DELAY_SECONDS} seconds for volumes to mount before dumping info... ---")
+    time.sleep(STARTUP_DELAY_SECONDS)
+
+    # 1. Dump User and Environment Info
+    print("\n[DEBUG] Running as user:")
+    subprocess.run(["id"])
+    
+    # 2. Dump Filesystem Info
+    print(f"\n[DEBUG] Checking for presence of scan path: {scan_path}")
+    if os.path.exists(scan_path):
+        print(f"[SUCCESS] Scan path {scan_path} exists.")
+        print(f"\n[DEBUG] Recursive file listing of {scan_path}:")
+        subprocess.run(["ls", "-lR", scan_path])
+    else:
+        print(f"[FAILURE] Scan path {scan_path} DOES NOT EXIST.")
+
+    print("\n--- DIAGNOSTIC DUMP COMPLETE ---")
+    
+    # Resume normal operation
+    print("\n--- Ebook Monitor Service ---")
+    
     # Perform an initial scan on startup
     scan_ebook_folder(scan_path, output_path)
 
