@@ -1,26 +1,17 @@
-# docker-compose.yml
-version: '3.8'
-
 services:
   ebook-scanner:
     # Pulls the pre-built image from Docker Hub.
     image: returntohero/ebookscanner:latest
-    
     container_name: ebook-scanner
     restart: unless-stopped
-    
+    user: 1000:1000
     volumes:
       # --- MAP YOUR FOLDERS HERE ---
       # The format is: HOST_PATH:CONTAINER_PATH:ro
 
       # 1. Edit the path on the LEFT side of the colon (:) to point to your ebook library.
       #    - Replace '/path/to/your/books' with the full, absolute path.
-      #    - The ':ro' at the end makes the folder read-only for better security.
-      #    - Example for Linux/macOS: /home/user/Books:/ebooks:ro
-      #    - Example for Windows: C:/Users/YourUser/Documents/Ebooks:/ebooks:ro
-      - /path/to/your/books:/ebooks:ro # <-- EDIT THE PART BEFORE THE COLON
 
-      # 2. This line maps an 'output' folder in the current directory to the container.
-      #    A folder named 'output' will be created here with the report.
-      #    You can change './output' to an absolute path if you prefer.
+      - ./Books:/ebooks:ro
       - ./output:/output
+networks: {}
