@@ -45,10 +45,6 @@ First, create a new, empty folder on your computer. This is where you will save 
 
 Open the `docker-compose.yml` file you just downloaded with any text editor. You **must** edit the following lines:
 
-*   **`image`**:
-    *   Replace `your-username` with the repository owner's Docker Hub username.
-    *   For stability, change `:latest` to a specific version tag like `:v1.0.0`. You can find all available tags on the **[Docker Hub Tags Page](https://hub.docker.com/r/your-username/ebook-scanner/tags)**.
-
 *   **`volumes`**:
     *   Replace the placeholder `/path/to/your/books` with the full, absolute path to your ebook library on your host machine.
 
