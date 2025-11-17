@@ -38,13 +38,4 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}```
-
-#### **Step 3: Commit and Push**
-
-Commit all your project changes (the new `monitor_and_scan.py`, `Dockerfile`, `requirements.txt`, and the new `.github/workflows/docker-publish.yml` file) and push them to your `main` branch.
-
-```sh
-git add .
-git commit -m "feat: Implement watchdog monitoring and CI/CD pipeline"
-git push origin main
+          labels: ${{ steps.meta.outputs.labels }}
