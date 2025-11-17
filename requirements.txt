@@ -1,5 +1,6 @@
 # requirements.txt
-ebooklib
-mobilib
-pypdf
-watchdog
+ebooklib==0.18
+mobilib==0.4
+pypdf==4.2.0
+watchdog==4.0.0
+lxml==4.9.4
