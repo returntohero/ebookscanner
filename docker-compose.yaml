@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  ebook-scanner:
+    build: .
+    container_name: ebook-scanner
+    volumes:
+      - ./ebooks:/ebooks:ro
+      - ./output:/output:rw
