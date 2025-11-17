@@ -5,7 +5,7 @@ FROM python:3.9-slim-bullseye AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    build-essential python3-dev pkg-config libxml2-dev libxslt1-dev zlib1-dev libjpeg62-turbo-dev \
+    build-essential python3-dev pkg-config libxml2-dev libxslt1-dev zlib1g-dev libjpeg62-turbo-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 RUN pip install --no-cache-dir --upgrade pip wheel
@@ -24,9 +24,9 @@ WORKDIR /home/appuser/app
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/*
 
-# --- [NEW] ULTIMATE DEBUGGING STEP ---
+# --- [DEBUGGING STEP] ---
 # This command will run during the build and its output will be
-# permanently saved in the GitHub Actions log.
+# permanently saved in the GitHub Actions log for verification.
 RUN echo "--- VERIFYING INSTALLED PACKAGES ---" && pip list && echo "--- VERIFICATION COMPLETE ---"
 
 COPY --chown=appuser:appuser monitor_and_scan.py .
