@@ -1,12 +1,10 @@
 # Dockerfile
 FROM python:3.9-slim-bullseye
 
-# Set an environment variable to prevent prompts during package installation
+# Set an environment variable to prevent prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# --- [IMPROVED] Install a comprehensive set of system dependencies ---
-# This includes build tools, Python headers, and common libraries
-# needed by packages like lxml (used by ebooklib).
+# Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     build-essential \
@@ -21,13 +19,17 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# --- [IMPROVED] Optimize Docker Caching ---
-# First, copy only the requirements file and install dependencies.
-# This layer will only be re-built if requirements.txt changes.
+# --- [CRUCIAL FIX] ---
+# First, upgrade pip, setuptools, and wheel. An outdated pip is a
+# very common cause for build failures with modern packages.
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Now, copy and install the pinned dependencies.
+# This step is much more reliable with an upgraded pip.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Now, copy the rest of the application code.
+# Copy the rest of the application code
 COPY monitor_and_scan.py .
 
 # The command to run the monitoring service
