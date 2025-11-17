@@ -1,16 +1,17 @@
 # Self-Hosted Ebook Metadata Scanner
 
-![Docker Build Status](https://img.shields.io/docker/cloud/build/your-username/ebook-scanner?style=for-the-badge) ![Docker Pulls](https://img.shields.io/docker/pulls/your-username/ebook-scanner?style=for-the-badge)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/your-username/ebook-scanner/docker-publish.yml?style=for-the-badge) ![Docker Pulls](https://img.shields.io/docker/pulls/your-username/ebook-scanner?style=for-the-badge)
 
-A simple, self-hosted Docker application that automatically scans your ebook library on a schedule, extracts metadata, and generates a clean report.
+A modern, event-driven Docker application that actively monitors your ebook library. When a file is added, moved, or deleted, it automatically rescans your collection and generates a fresh report.
 
-This project is configured for **Automated Builds** on Docker Hub. When new code is pushed to this GitHub repository, a new Docker image is automatically built and published.
+This project is configured for **Automated Builds** using GitHub Actions. New versions are automatically built and published to Docker Hub.
 
 ## Features
 
+-   **Event-Driven**: No more schedules! The scanner runs instantly after a file change.
+-   **Highly Efficient**: Uses almost no CPU while idle, only waking up when needed.
 -   **One-File Setup**: The entire configuration lives in a single `docker-compose.yml` file.
--   **Automated Updates**: New versions are automatically published to Docker Hub.
--   **Stable Versions**: Uses version tagging (e.g., `v1.0.0`) for predictable deployments.
+-   **Stable Releases**: Uses version tagging for predictable, safe updates.
 
 ## Prerequisites
 
@@ -35,24 +36,20 @@ services:
   ebook-scanner:
     # Pulls the pre-built image from Docker Hub.
     # Replace 'your-username' with the actual Docker Hub username.
-    # It is recommended to use a specific version tag for stability.
-    image: returntohero/ebook-scanner:v1.0.0 # <-- CHANGE TO THE LATEST VERSION TAG
+    image: your-username/ebook-scanner:v1.0.0 # <-- CHANGE TO THE LATEST VERSION TAG
     
     container_name: ebook-scanner
-    restart: always
+    restart: unless-stopped
     
-    environment:
-      # Set your desired scan schedule in cron format.
-      - CRON_SCHEDULE=0 2 * * *
-      
     volumes:
-      # Edit the 'source' path below to point to your ebook library.
+      # --- MAP YOUR FOLDERS HERE ---
+      # 1. Edit the 'source' path below to point to your ebook library.
       - type: bind
         source: /path/to/your/books # <-- EDIT THIS LINE
         target: /ebooks
         read_only: true
         
-      # This line maps an 'output' folder in the current directory.
+      # 2. This line maps an 'output' folder in the current directory.
       - type: bind
         source: ./output
         target: /output
