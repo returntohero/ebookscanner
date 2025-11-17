@@ -1,0 +1,51 @@
+# .github/workflows/docker-publish.yml
+
+name: Docker Publish to Docker Hub
+
+# This action runs on every push to the 'main' branch
+# and on every push of a tag that looks like a version (e.g., v1.0.0)
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*.*.*' ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Log in to Docker Hub using the secrets
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3. Automatically extract metadata like tags and labels
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: returntohero/ebookscanner # <-- IMPORTANT: Change this to your Docker Hub repo name
+
+      # 4. Build the Docker image and push it to Docker Hub
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}```
+**Important:** Change `your-username/ebook-scanner` in the file above to your actual Docker Hub repository name.
+
+#### **Step 3: Commit and Push**
+
+Commit all your project changes (the new `monitor_and_scan.py`, `Dockerfile`, `requirements.txt`, and the new `.github/workflows/docker-publish.yml` file) and push them to your `main` branch.
+
+```sh
+git add .
+git commit -m "feat: Implement watchdog monitoring and CI/CD pipeline"
+git push origin main
