@@ -1,9 +1,23 @@
+# docker-compose.yml
 version: '3.8'
+
+services:
+  ebook-scanner:
+    # Build the image from the local Dockerfile.
+    # If using pre-built images, change this to 'image: your-name/repo:tag'
+    build: .
+    
+    container_name: ebook-scanner
+    restart: unless-stopped
+    
+    volumes:
+      - ./ebooks:/ebooks:ro
+      - ./output:/output:rw
+        
+        version: '3.8'
 
 services:
   ebook-scanner:
     build: .
     container_name: ebook-scanner
-    volumes:
-      - ./ebooks:/ebooks:ro
-      - ./output:/output:rw
+
