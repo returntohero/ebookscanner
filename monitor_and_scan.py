@@ -13,20 +13,49 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 # (All the scanning functions like process_epub, scan_ebook_folder, etc., remain the same)
+# In monitor_and_scan.py, replace the old process_epub function
+
 def process_epub(file_path):
-    """Extracts title and ISBN from an EPUB file."""
+    """
+    Extracts title and ISBN from an EPUB file using a more aggressive search.
+    """
     book = epub.read_epub(file_path)
-    title = book.get_metadata('DC', 'title')[0][0]
+    
+    # Default title to the filename if metadata is missing
+    title = os.path.splitext(os.path.basename(file_path))[0]
+    
+    # Try to get the title from metadata
+    title_metadata = book.get_metadata('DC', 'title')
+    if title_metadata:
+        title = title_metadata[0][0]
+
     isbn13 = None
     isbn10 = None
-    for identifier in book.get_metadata('DC', 'identifier'):
-        if 'urn:isbn:' in identifier[0]:
-            isbn_val = identifier[0].replace('urn:isbn:', '').strip()
-            if len(isbn_val) == 13:
-                isbn13 = isbn_val
-            elif len(isbn_val) == 10:
-                isbn10 = isbn_val
-    return title, isbn13 if isbn13 else isbn10
+
+    # Get all identifiers from the Dublin Core metadata
+    identifiers = book.get_metadata('DC', 'identifier')
+
+    for identifier_data in identifiers:
+        # identifier_data is a tuple, e.g., ('urn:isbn:9781234567890', {'id': 'pub-id'})
+        # We only need the first element.
+        raw_id_string = identifier_data[0]
+        
+        # Clean up the identifier string more thoroughly
+        cleaned_id = "".join(filter(str.isalnum, raw_id_string))
+        
+        # Check if the cleaned string looks like an ISBN
+        # ISBN-10 can end with 'X'
+        if cleaned_id.isdigit() or (cleaned_id[:-1].isdigit() and cleaned_id.upper().endswith('X')):
+            if len(cleaned_id) == 13:
+                isbn13 = cleaned_id
+                break # Found the best version (ISBN-13), so we can stop searching
+            elif len(cleaned_id) == 10:
+                isbn10 = cleaned_id
+    
+    # Prioritize ISBN-13 if found, otherwise use ISBN-10
+    final_isbn = isbn13 if isbn13 else isbn10
+    
+    return title, final_isbn
 
 def process_mobi(file_path):
     """Extracts title and ISBN from a MOBI or AZW3 file."""
