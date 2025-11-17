@@ -8,7 +8,7 @@ from watchdog.events import FileSystemEventHandler
 
 # --- All the original scanning functions from scan_ebooks.py ---
 from ebooklib import epub
-import mobilib
+import mobi
 from pypdf import PdfReader
 
 # (You can copy and paste all your process_epub, process_mobi, process_pdf,
@@ -31,7 +31,7 @@ def process_epub(file_path):
 
 def process_mobi(file_path):
     """Extracts title and ISBN from a MOBI or AZW3 file."""
-    book = mobilib.MobiFile(file_path)
+    book = mobi.MobiFile(file_path)
     book.parse()
     title = book.title().decode('utf-8', errors='ignore')
     isbn = None
