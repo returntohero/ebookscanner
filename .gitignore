@@ -1,0 +1,9 @@
+# Python artifacts
+__pycache__/
+*.pyc
+
+# Do not commit your personal ebook library or the generated output
+ebooks/*
+!ebooks/.gitkeep
+output/*
+!output/.gitkeep
