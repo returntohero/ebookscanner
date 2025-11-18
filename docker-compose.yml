@@ -13,5 +13,5 @@ services:
       # Your books folder
       - /your/path/to/books:/ebooks:ro
       # Your separate, dedicated folder for the output
-      - path/for/output:/output
+      - ./output:/output
 networks: {}
