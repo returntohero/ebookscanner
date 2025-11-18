@@ -1,17 +1,17 @@
 services:
   ebook-scanner:
-    # Pulls the pre-built image from Docker Hub.
+    # Pulls the pre-built image from Docker Hub
     image: returntohero/ebookscanner:latest
     container_name: ebook-scanner
     restart: unless-stopped
-    user: 1000:1000
+    user: PID:UID
+    environment:
+      # --- [CRUCIAL FIX] ---
+      # This forces Python to print logs immediately instead of buffering them.
+      - PYTHONUNBUFFERED=1
     volumes:
-      # --- MAP YOUR FOLDERS HERE ---
-      # The format is: HOST_PATH:CONTAINER_PATH:ro
-
-      # 1. Edit the path on the LEFT side of the colon (:) to point to your ebook library.
-      #    - Replace '/path/to/your/books' with the full, absolute path.
-
-      - ./Books:/ebooks:ro
-      - ./output:/output
+      # Your books folder
+      - /your/path/to/books:/ebooks:ro
+      # Your separate, dedicated folder for the output
+      - path/for/output:/output
 networks: {}
