@@ -5,6 +5,8 @@
 
 A modern, event-driven Docker application that actively monitors your ebook library. When a file is added, moved, or deleted, it automatically rescans your collection, extracts metadata like title and ISBN, and generates a fresh report.
 
+This was made completely with AI (Vibe Code) so dont expect perfection, but it gets the job done.
+
 This project is configured for **Automated Builds** using GitHub Actions. New versions are automatically built and published to Docker Hub for easy, reliable self-hosting.
 
 ---
