@@ -1,6 +1,7 @@
-# Dockerfile (Final Brute-Force Fix)
+# Dockerfile (Final "Install as Root, Read as User" Strategy)
 
 # --- Stage 1: The Builder ---
+# This stage is working correctly and does not need changes.
 FROM python:3.9-slim-bullseye AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -19,29 +20,24 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libxml2 libxslt1.1 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Create the user
-RUN useradd --create-home appuser
+WORKDIR /app
 
-# Copy the pre-compiled wheels
+# Copy the pre-compiled wheels. We are still root at this point.
 COPY --from=builder /wheels /wheels
 
-# Switch to the non-root user
-USER appuser
-WORKDIR /home/appuser/app
-
-# Install the wheels as the non-root user into the user's home directory
-RUN pip install --no-cache-dir --user /wheels/*
+# Install the wheels system-wide as the root user.
+RUN pip install --no-cache-dir /wheels/*
 
 # --- [THE DEFINITIVE FIX] ---
-# Forcefully tell the Python interpreter where the packages were just installed.
-# This explicitly adds the user's local package directory to Python's import path.
-ENV PYTHONPATH="/home/appuser/.local/lib/python3.9/site-packages"
+# After installing as root, we forcefully make the package directories
+# readable and traversable by ANY user who runs the container.
+RUN chmod -R a+rX /usr/local/lib/python3.9/site-packages
 
-# Also add the user's local bin directory to the main PATH
-ENV PATH="/home/appuser/.local/bin:${PATH}"
-
-# Copy the application code as the non-root user
+# Now, create and switch to the non-root user.
+RUN useradd --create-home appuser
 COPY --chown=appuser:appuser monitor_and_scan.py .
+USER appuser
 
-# The command to run the monitoring service
+# The command to run the monitoring service. This user will now be able
+# to read the packages installed by root.
 CMD ["python", "monitor_and_scan.py"]
